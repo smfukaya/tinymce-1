@@ -16,6 +16,10 @@ tinymce.init({
   skin_url: '../../../../../js/tinymce/skins/lightgray',
   plugins: 'link code',
   toolbar: 'link code',
+  content_css : '/css/link_unpublished.css',
+  link_data_list: [
+    { modulo: 'ata_da_sessao', type: 'checkbox', name: 'published', title: 'Público', classes: 'published' }
+  ],
   height: 600
 });
 

@@ -75,7 +75,7 @@ const showDialog = function (editor, linkList) {
   const selection = editor.selection;
   const dom = editor.dom;
   let anchorElm, initialText;
-  let win, onlyText, textListCtrl, linkListCtrl, relListCtrl, targetListCtrl, classListCtrl, linkTitleCtrl, value;
+  let win, onlyText, textListCtrl, linkListCtrl, relListCtrl, targetListCtrl, classListCtrl, dataListCtrls, linkTitleCtrl, value;
 
   const linkListChangeHandler = function (e) {
     const textCtrl = win.find('#text');
@@ -181,6 +181,12 @@ const showDialog = function (editor, linkList) {
     data.title = value;
   }
 
+  for (const dataAttrCtrl of Settings.getLinkDataList(editor.settings)) {
+    if ((value = dom.getAttrib(anchorElm, 'data-' + dataAttrCtrl.name))) {
+      data['data-' + dataAttrCtrl.name] = value;
+    }
+  }
+
   if (onlyText) {
     textListCtrl = {
       name: 'text',
@@ -263,6 +269,40 @@ const showDialog = function (editor, linkList) {
     };
   }
 
+  if (Settings.hasLinkDataList(editor.settings)) {
+    dataListCtrls = [];
+    for (const ctrl of Settings.getLinkDataList(editor.settings)) {
+      if (ctrl.type === 'checkbox') {
+        if (data['data-' + ctrl.name] === 'true') {
+          dataListCtrls.push({
+            type: 'checkbox',
+            'aria-checked': true,
+            classes: '', // Deveria ser habilitado com "checked: true"
+            name: 'data-' + ctrl.name,
+            text: ctrl.title,
+            value: '1'
+          });
+        } else { //} if (data['data-' + ctrl.name] === 'false') {
+          dataListCtrls.push({
+            type: 'checkbox',
+            'aria-checked': false,
+            classes: 'checked', // Deveria ser desabilitado com "checked: false"
+            name: 'data-' + ctrl.name,
+            text: ctrl.title,
+            value: '1'
+          });
+        }
+      } else {
+        dataListCtrls.push({
+          type: 'textbox',
+          name: 'data-' + ctrl.name,
+          label: ctrl.title,
+          value: data['data-' + ctrl.name]
+        });
+      }
+    }
+  }
+
   if (Settings.shouldShowLinkTitle(editor.settings)) {
     linkTitleCtrl = {
       name: 'title',
@@ -295,7 +335,7 @@ const showDialog = function (editor, linkList) {
       relListCtrl,
       targetListCtrl,
       classListCtrl
-    ],
+    ].concat(dataListCtrls),
     onSubmit (e) {
       const assumeExternalTargets = Settings.assumeExternalTargets(editor.settings);
       const insertLink = Utils.link(editor, attachState);

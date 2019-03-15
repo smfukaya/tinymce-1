@@ -85,8 +85,29 @@ const link = function (editor, attachState) {
         title: data.title ? data.title : null
       };
 
+      let mapClass, arrClass;
+
       if (!Settings.hasRelList(editor.settings) && Settings.allowUnsafeLinkTarget(editor.settings) === false) {
         linkAttrs.rel = toggleTargetRules(linkAttrs.rel, linkAttrs.target === '_blank');
+      }
+
+      if (Settings.hasLinkDataList(editor.settings)) {
+        for (const dataAttrCtrl of Settings.getLinkDataList(editor.settings)) {
+          linkAttrs['data-' + dataAttrCtrl.name] = String(data['data-' + dataAttrCtrl.name]);
+          if (dataAttrCtrl.classes) {
+            if (linkAttrs.class === null) {
+              linkAttrs.class = dataAttrCtrl.classes;
+            } else {
+              linkAttrs.class = linkAttrs.class + ' ' + dataAttrCtrl.classes;
+              mapClass = Tools.makeMap(linkAttrs.class, ' ');
+              arrClass = [];
+              Tools.each(mapClass, function (value, key) {
+                arrClass.push(key);
+              });
+              linkAttrs.class = arrClass.join(" ");
+            }
+          }
+        }
       }
 
       if (data.href === attachState.href) {

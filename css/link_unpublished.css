@@ -1,0 +1,3 @@
+a.published[data-published='false'] { 
+  color: red;
+}
